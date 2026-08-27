@@ -22,6 +22,17 @@ jobs:
         run: nix flake update forge
       - name: Verify it still builds
         run: nix build -L .#forge
+      # Publish the lock unconditionally. Opening a PR needs "Allow GitHub
+      # Actions to create and approve pull requests", which is off for this
+      # repository, so the step below fails and the verified lock would
+      # otherwise be thrown away with the runner. An artifact needs no such
+      # permission and can be landed by hand.
+      - name: Publish the verified lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake-lock
+          path: flake.lock
+          if-no-files-found: error
       - uses: peter-evans/create-pull-request@v7
         with:
           commit-message: "flake.lock: update forge"

@@ -102,18 +102,27 @@ to keep in step by hand. Bumping to the latest commit is:
 nix flake update forge
 ```
 
-**No `flake.lock` is committed yet.** Until one is, `nix run` resolves the
-`forge` input to whatever is on its default branch at evaluation time, so you
-track the tip automatically — but you are also not reproducible, and nix caches
-that resolution for an hour. If you have just pushed to Forge and want it now:
+`flake.lock` pins an exact Forge revision, so a run gives everyone the same
+binary — and **a new commit to Forge does not reach you until the lock is
+bumped.** That is the trade a lock makes. To follow the tip instead, for a
+single run:
 
 ```sh
 nix run --refresh github:lucianogdittgen/forge.nix
 ```
 
-The nightly `Update Forge` workflow runs `nix flake update forge`, checks it
-builds, and opens a PR; merging one of those is what will commit the first
-lock.
+The nightly `Update Forge` workflow does the bump: it updates the input,
+verifies `nix build .#forge`, publishes the resulting lock as an artifact, and
+opens a PR.
+
+Opening that PR needs **Settings → Actions → General → Workflow permissions →
+"Allow GitHub Actions to create and approve pull requests"**, which is off for
+this repository, so that last step currently fails. The artifact is published
+either way and can be landed by hand:
+
+```sh
+gh run download <run-id> -n flake-lock && git add flake.lock
+```
 
 ## Why tests do not run in the package build
 

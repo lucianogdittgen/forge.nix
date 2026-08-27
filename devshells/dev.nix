@@ -24,7 +24,7 @@ pkgs.mkShell {
 
   shellHook = ''
     echo "forge dev shell - cargo $(cargo --version | cut -d' ' -f2), rustc $(rustc --version | cut -d' ' -f2)"
-    echo "  cargo test      run the suite (89 tests)"
+    echo "  cargo test      run the suite (108 tests)"
     echo "  cargo run       start Forge from source"
   '';
 }

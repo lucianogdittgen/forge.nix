@@ -36,11 +36,11 @@
     "forge": {
       "flake": false,
       "locked": {
-        "lastModified": 1787853550,
-        "narHash": "sha256-Pgmgjca0ncdhbzhrM2JQYQ7G/bG1NwIt3EoMt0FI26U=",
+        "lastModified": 1787856873,
+        "narHash": "sha256-nB5KuqgMyPctG9Z4yhWFHE50v8/9IG8rNcJzK18RW/w=",
         "owner": "lucianogdittgen",
         "repo": "forge",
-        "rev": "2b20f0dbfe7f72c6e3b1ab218427fcad5694a9a4",
+        "rev": "161b3373a4d1b635ff9d03ab4b76a2e0178e1b75",
         "type": "github"
       },
       "original": {

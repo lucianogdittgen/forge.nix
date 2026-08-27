@@ -64,10 +64,15 @@ double-tap gesture: no key is left over to bind.
 | `Ctrl-]` | point the terminal at another process |
 | `PgUp` / `PgDn` | scroll the conversation |
 
-Ask for a build on the left and it appears on the right, live, without you
-asking to see it — the agent runs it through the same process manager the pane
-reads from, so it has no way to run something you cannot watch. If you have
-deliberately switched away with `Ctrl-]`, the pane stays where you put it.
+The agent reads and edits your tree like any coding agent, but it has no shell.
+Every command it runs goes through the process manager the pane reads from, so
+ask for a build on the left and it appears on the right, live, without you
+asking to see it — there is no way for it to run something you cannot watch. If
+you have deliberately switched away with `Ctrl-]`, the pane stays where you put
+it.
+
+That is also why a long build does not cost you tokens: the output goes to the
+pty and to your eyes, and reaches the model only if it asks, under a cap.
 
 Note that this only holds for **Forge's own** agent, in the left pane. Starting
 a second agent *inside* the terminal pane gives you an ordinary child process

@@ -44,8 +44,9 @@ pkgs.rustPlatform.buildRustPackage {
 
       Forge drives the Claude CLI as its agent backend. That binary is not
       packaged here and is not in nixpkgs; install it separately and make sure
-      `claude` is on PATH, or set `FORGE_CLAUDE_BIN`. Forge's terminal, process
-      and Git features work without it.
+      `claude` is on PATH, or point `FORGE_CLAUDE_BIN` at it. Without it Forge
+      still runs as a terminal — it says why the agent is absent and carries
+      on.
     '';
     homepage = "https://github.com/lucianogdittgen/forge";
     license = lib.licenses.mit;

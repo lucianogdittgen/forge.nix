@@ -45,42 +45,75 @@ nix profile install github:lucianogdittgen/forge.nix
 
 Forge starts with the terminal pane focused, so you can type straight away.
 
-| | |
-|---|---|
-| *(anything)* | goes to the process — including `Ctrl-C`, arrows, `vim` keys |
-| **`Esc` `Esc`** (quick double-tap) | leave the terminal pane |
-| `Tab` / `Enter` | re-enter the terminal pane |
-| `q` or `Ctrl-C` | quit — **only when the terminal is unfocused** |
+While the terminal pane has focus, Forge has **no shortcuts at all** — every
+key goes to the child, so `Ctrl-C` interrupts your build rather than quitting
+Forge. That is the point of the tool, and it is why leaving the pane is a
+double-tap gesture: no key is left over to bind.
 
-While the terminal pane has focus, Forge has no shortcuts at all: `Ctrl-C`
-interrupts your build rather than quitting Forge. That is the point of the
-tool, and it is why leaving the pane is a double-tap gesture — no key is left
-over to bind.
+| In the terminal pane | |
+|---|---|
+| *(anything)* | goes to the process — `Ctrl-C`, `Tab`, arrows, `vim` keys |
+| **`Esc` `Esc`** (quick double-tap) | leave the pane |
+
+| In the conversation pane | |
+|---|---|
+| `Tab` | enter the terminal pane |
+| `Enter` | send what you typed to the agent |
+| `y` / `n` | answer a pending approval |
+| `Ctrl-C` | cancel the turn in flight, or quit when there is none |
+| `Ctrl-]` | point the terminal at another process |
+| `PgUp` / `PgDn` | scroll the conversation |
+
+Ask for a build on the left and it appears on the right, live, without you
+asking to see it — the agent runs it through the same process manager the pane
+reads from, so it has no way to run something you cannot watch. If you have
+deliberately switched away with `Ctrl-]`, the pane stays where you put it.
+
+Note that this only holds for **Forge's own** agent, in the left pane. Starting
+a second agent *inside* the terminal pane gives you an ordinary child process
+with its own tools; anything it backgrounds is invisible to Forge, because
+Forge never started it.
 
 ## The Claude CLI is a runtime dependency, and is not packaged here
 
 Forge drives the `claude` binary as its agent backend. That binary is not in
-nixpkgs and is not vendored by this flake, so the dev shell **warns rather than
-fails** when it is absent: Forge's terminal, process and Git features all work
-without it, and only the AI pane is unavailable.
+nixpkgs and is not vendored by this flake, so the shell **warns rather than
+fails** when it is absent: Forge still runs as a terminal, and says in the left
+pane why nobody is home there.
 
-Install it separately and make sure `claude` is on `PATH`.
+Install it separately and either put `claude` on `PATH` or point Forge at it:
+
+```sh
+export FORGE_CLAUDE_BIN=/path/to/claude
+```
 
 This is deliberate. Forge deliberately does not inherit your Claude
 configuration — it runs the CLI with an explicit, minimal environment and its
 own `CLAUDE_CONFIG_DIR`, so your `~/.claude` is never read or written. Vendoring
 a pinned copy here would work against that.
 
-## Updating Forge
+## Which Forge you get
 
-Forge's source is a flake input, so nix records its revision and hash in
-`flake.lock` itself. Bumping to the latest commit is:
+Forge's source is a flake input, so its revision and hash both live in
+`flake.lock` and roll together — there is no `sha256` in `packages/forge.nix`
+to keep in step by hand. Bumping to the latest commit is:
 
 ```sh
 nix flake update forge
 ```
 
-There is no `sha256` in `packages/forge.nix` to keep in step by hand.
+**No `flake.lock` is committed yet.** Until one is, `nix run` resolves the
+`forge` input to whatever is on its default branch at evaluation time, so you
+track the tip automatically — but you are also not reproducible, and nix caches
+that resolution for an hour. If you have just pushed to Forge and want it now:
+
+```sh
+nix run --refresh github:lucianogdittgen/forge.nix
+```
+
+The nightly `Update Forge` workflow runs `nix flake update forge`, checks it
+builds, and opens a PR; merging one of those is what will commit the first
+lock.
 
 ## Why tests do not run in the package build
 

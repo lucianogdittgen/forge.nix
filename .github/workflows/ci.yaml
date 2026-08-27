@@ -1,0 +1,43 @@
+name: "Continuous Integration"
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}
+  cancel-in-progress: false
+jobs:
+  nix-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: nixbuild/nix-quick-install-action@v34
+      - name: Run nix fmt
+        run: nix fmt
+      - name: Fail if any file would be reformatted
+        run: git diff --exit-code
+  nix-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ossystems/nix-actions@v1
+        with:
+          install-nix: true
+          flake-check-args: -L
+          build-devshells: false
+  build:
+    # This repo's job is packaging, so what CI must catch is a packaging
+    # regression: a lock file the vendoring cannot satisfy, a missing build
+    # input, a toolchain bump that stops compiling. Forge's own test suite is
+    # gated in the Forge repository, where the source and a writable target
+    # directory live.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: nixbuild/nix-quick-install-action@v34
+      - name: Build Forge
+        run: nix build -L .#forge
+      - name: Check the binary is present and runnable
+        run: test -x ./result/bin/forge

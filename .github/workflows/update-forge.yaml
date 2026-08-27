@@ -1,0 +1,33 @@
+name: "Update Forge"
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: nixbuild/nix-quick-install-action@v34
+      # Forge's source is a flake input, so the revision and hash both live in
+      # flake.lock and roll together. There is no sha256 in packages/forge.nix
+      # to update alongside this.
+      - name: Update the forge input
+        run: nix flake update forge
+      - name: Verify it still builds
+        run: nix build -L .#forge
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "flake.lock: update forge"
+          title: "flake.lock: update forge"
+          body: |
+            Automated bump of the `forge` flake input to the latest commit on
+            its default branch. `nix build .#forge` passed.
+          branch: update-forge
+          delete-branch: true
